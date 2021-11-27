@@ -1,8 +1,10 @@
 import sqlite3
 
 from flask import Flask, jsonify, render_template, request, url_for, redirect, flash
+import logging, sys
 
 global dbcount
+
 
 # Function to get a database connection.
 # This function connects to database with the name `database.db`
@@ -20,7 +22,7 @@ def get_post(post_id):
     post = connection.execute('SELECT * FROM posts WHERE id = ?',
                               (post_id,)).fetchone()
     connection.close()
-    dbcount -=1
+    dbcount -= 1
     return post
 
 
@@ -61,21 +63,29 @@ def index():
 def post(post_id):
     post = get_post(post_id)
     if post is None:
+        app.logger.info("Article Id: {} doesn't exist!".format(post_id))
         return render_template('404.html'), 404
     else:
+        app.logger.info("Article: {} retrieved!".format(post['title']))
         return render_template('post.html', post=post)
 
 
 # Define the About Us page
 @app.route('/about')
 def about():
+    app.logger.info('About Page Viewed!')
     return render_template('about.html')
 
 
 # Helath Check APIs
 @app.route('/healthz')
 def health_check():
-    return jsonify({"result": "OK - healthy"})
+    try:
+        get_post_count()
+    except Exception as err:
+        return jsonify(result='ERROR - unhealthy'), 500
+    else:
+        return jsonify(result='OK - healthy'), 200
 
 
 # Metrics
@@ -102,6 +112,7 @@ def create():
             connection.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
                                (title, content))
             connection.commit()
+            app.logger.info('Article {} created!'.format(title))
             connection.close()
             dbcount -= 1
 
@@ -110,8 +121,33 @@ def create():
     return render_template('create.html')
 
 
+def custom_logger(logger, log_format):
+    del logger.handlers[:]
+
+    handler1_stdout = logging.StreamHandler(sys.stdout)
+    handler1_stdout.setLevel(logging.DEBUG)
+    handler1_stdout.setFormatter(log_format)
+
+    handler2_stderr = logging.StreamHandler(sys.stderr)
+    handler2_stderr.setLevel(logging.ERROR)
+    handler2_stderr.setFormatter(log_format)
+
+    logger.addHandler(handler1_stdout)
+    logger.addHandler(handler2_stderr)
+    app.logger.setLevel(logging.DEBUG)
+
+
 # start the application on port 3111
 if __name__ == "__main__":
     global dbcount
     dbcount = 0
+
+    appLogger = app.logger
+    appFormat = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s%(message)s', datefmt='%d/%m/%Y, %H:%M:%S, ')
+    custom_logger(appLogger, appFormat)
+
+    wsLogger = logging.getLogger('werkzeug')
+    wsFormat = logging.Formatter('%(levelname)s:%(name)s:%(message)s', datefmt='%d/%m/%Y, %H:%M:%S, ')
+    custom_logger(wsLogger, wsFormat)
+
     app.run(host='0.0.0.0', port='3111')
