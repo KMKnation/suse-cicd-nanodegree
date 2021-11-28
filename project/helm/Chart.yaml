@@ -1,0 +1,9 @@
+apiVersion: v1
+name: techtrends
+description: Latest trends about technology
+keywords:
+- techtrends
+version: 1.0.0
+maintainers:
+- name: Mayur Kanojiya
+  email: kanojiyamayur@gmail.com
