@@ -14,7 +14,7 @@ spec:
         name: techtrends
     spec:
       containers:
-        - image: techtrends:latest
+        - image: mayurkanojiya/techtrends:latest
           imagePullPolicy: Always
           name: techtrends
           ports:
