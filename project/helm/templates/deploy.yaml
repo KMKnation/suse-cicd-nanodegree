@@ -23,11 +23,11 @@ spec:
         livenessProbe:
           httpGet:
             path: {{ .Values.livenessProbe.httpGet.path }}
-            port: {{ .Values.containerPort }}
+            port: {{ .Values.livenessProbe.httpGet.port }}
         readinessProbe:
           httpGet:
             path: {{ .Values.livenessProbe.httpGet.path }}
-            port: {{ .Values.containerPort }}
+            port: {{ .Values.livenessProbe.httpGet.port  }}
         resources:
           requests:
             cpu: {{ .Values.resources.requests.cpu }}

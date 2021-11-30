@@ -1,7 +1,7 @@
 namespace:
   name: prod
 
-replicaCount: 3
+replicaCount: 5
 
 service:
   port: 7111
@@ -28,7 +28,7 @@ readinessProbe:
 
 resources:
   requests:
-    cpu: "300m"
+    cpu: "350m"
     memory: "128Mi"
   limits:
     cpu: "500m"

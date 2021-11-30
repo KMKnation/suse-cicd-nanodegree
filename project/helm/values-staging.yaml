@@ -29,7 +29,7 @@ readinessProbe:
 resources:
   requests:
     cpu: "300m"
-    memory: "85Mi"
+    memory: "90Mi"
   limits:
     cpu: "500m"
     memory: "128Mi"
